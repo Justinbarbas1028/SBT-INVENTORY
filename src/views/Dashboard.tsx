@@ -1,20 +1,20 @@
 import React from 'react';
 import { useAppContext } from '../AppContext';
-import { Package, Wrench, Truck, CheckCircle } from 'lucide-react';
+import { Package, ArrowDownToLine, ArrowUpFromLine, History } from 'lucide-react';
 
 export default function Dashboard() {
-  const { items, vehicles, requests } = useAppContext();
+  const { items, transactions } = useAppContext();
 
   const totalItems = items.length;
-  const itemsInUse = items.filter(i => i.status === 'In Use').length;
-  const faultyItems = items.filter(i => i.status === 'Faulty').length;
-  const availableVehicles = vehicles.filter(v => v.status === 'Available').length;
+  const itemsInStock = items.filter(i => i.status === 'In Stock').length;
+  const itemsCheckedOut = items.filter(i => i.status === 'Checked Out').length;
+  const totalTransactions = transactions.length;
 
   const stats = [
-    { label: 'Total Items', value: totalItems, icon: Package, color: 'bg-teal-500' },
-    { label: 'Items In Use', value: itemsInUse, icon: CheckCircle, color: 'bg-emerald-500' },
-    { label: 'Faulty Items', value: faultyItems, icon: Wrench, color: 'bg-red-500' },
-    { label: 'Available Vehicles', value: availableVehicles, icon: Truck, color: 'bg-emerald-500' },
+    { label: 'Total Items', value: totalItems, icon: Package, color: 'bg-slate-800' },
+    { label: 'In Stock', value: itemsInStock, icon: ArrowDownToLine, color: 'bg-emerald-500' },
+    { label: 'Checked Out', value: itemsCheckedOut, icon: ArrowUpFromLine, color: 'bg-amber-500' },
+    { label: 'Total Transactions', value: totalTransactions, icon: History, color: 'bg-indigo-500' },
   ];
 
   return (
@@ -40,31 +40,49 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">Recent Item Requests</h3>
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Recent Transactions</h3>
           <div className="space-y-4">
-            {requests.slice(0, 5).map(req => (
-              <div key={req.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+            {transactions.slice(0, 5).map(txn => (
+              <div key={txn.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                 <div>
-                  <p className="font-medium text-slate-800">{req.employeeName}</p>
-                  <p className="text-sm text-slate-500">Requested: {req.deviceType}</p>
+                  <p className="font-medium text-slate-800">{txn.itemName}</p>
+                  <p className="text-sm text-slate-500">{txn.person} • {new Date(txn.date).toLocaleDateString()}</p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  req.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
-                  req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
-                  'bg-red-100 text-red-700'
+                <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${
+                  txn.type === 'IN' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
                 }`}>
-                  {req.status}
+                  {txn.type === 'IN' ? <ArrowDownToLine size={12} /> : <ArrowUpFromLine size={12} />}
+                  <span>{txn.type}</span>
                 </span>
               </div>
             ))}
-            {requests.length === 0 && <p className="text-slate-500 text-sm">No recent requests.</p>}
+            {transactions.length === 0 && <p className="text-slate-500 text-sm">No recent transactions.</p>}
           </div>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4">System Analytics</h3>
-          <div className="h-64 flex items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-            <p className="text-slate-400">Analytics Chart Placeholder</p>
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Inventory Status</h3>
+          <div className="h-64 flex flex-col items-center justify-center bg-slate-50 rounded-xl border border-dashed border-slate-200 p-6">
+            <div className="w-full max-w-xs space-y-4">
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="font-medium text-slate-700">In Stock</span>
+                  <span className="text-slate-500">{itemsInStock} / {totalItems}</span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-2.5">
+                  <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${totalItems ? (itemsInStock / totalItems) * 100 : 0}%` }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="font-medium text-slate-700">Checked Out</span>
+                  <span className="text-slate-500">{itemsCheckedOut} / {totalItems}</span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-2.5">
+                  <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: `${totalItems ? (itemsCheckedOut / totalItems) * 100 : 0}%` }}></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

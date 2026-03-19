@@ -1,7 +1,7 @@
 export type Role = 'Super Admin' | 'Admin' | 'Employee';
 
-export type ItemCategory = 'Office Supplies' | 'Devices' | 'Furniture' | 'Construction tool';
-export type ItemStatus = 'Available' | 'In Use' | 'Faulty' | 'Disposed' | 'Archived';
+export type ItemCategory = 'Office Supplies' | 'Devices' | 'Furniture' | 'Tools' | 'Other';
+export type ItemStatus = 'In Stock' | 'Checked Out' | 'Disposed';
 
 export interface Item {
   id: string;
@@ -10,6 +10,8 @@ export interface Item {
   status: ItemStatus;
   qrCode: string;
   dateAdded: string;
+  assignedTo?: string;
+  notes?: string;
 }
 
 export interface User {
@@ -21,18 +23,14 @@ export interface User {
   employeeNumber: string;
 }
 
-export interface Vehicle {
-  id: string;
-  plateNumber: string;
-  orCr: string;
-  codingDay: string;
-  status: 'Available' | 'On Route' | 'Maintenance';
-}
+export type TransactionType = 'IN' | 'OUT';
 
-export interface ItemRequest {
+export interface Transaction {
   id: string;
-  employeeName: string;
-  deviceType: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
-  dateRequested: string;
+  itemId: string;
+  itemName: string;
+  type: TransactionType;
+  date: string;
+  person: string;
+  notes: string;
 }

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Item, User, Vehicle, ItemRequest, Role } from './types';
-import { initialItems, initialUsers, initialVehicles, initialRequests } from './store';
+import { Item, User, Transaction, Role } from './types';
+import { initialItems, initialUsers, initialTransactions } from './store';
 
 interface AppContextType {
   currentUser: User | null;
@@ -9,10 +9,8 @@ interface AppContextType {
   setItems: React.Dispatch<React.SetStateAction<Item[]>>;
   users: User[];
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
-  vehicles: Vehicle[];
-  setVehicles: React.Dispatch<React.SetStateAction<Vehicle[]>>;
-  requests: ItemRequest[];
-  setRequests: React.Dispatch<React.SetStateAction<ItemRequest[]>>;
+  transactions: Transaction[];
+  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -21,16 +19,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [currentUser, setCurrentUser] = useState<User | null>(users[0]); // Default to Super Admin
   const [items, setItems] = useState<Item[]>(initialItems);
-  const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
-  const [requests, setRequests] = useState<ItemRequest[]>(initialRequests);
+  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
 
   return (
     <AppContext.Provider value={{
       currentUser, setCurrentUser,
       items, setItems,
       users, setUsers,
-      vehicles, setVehicles,
-      requests, setRequests
+      transactions, setTransactions
     }}>
       {children}
     </AppContext.Provider>

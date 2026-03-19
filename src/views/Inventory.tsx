@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../AppContext';
-import { Download, Printer, Filter, Archive, CheckSquare, XSquare, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Download, Printer, Filter, Trash2, CheckSquare, XSquare, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { ItemStatus, Item } from '../types';
 
 export default function Inventory() {
@@ -9,11 +9,9 @@ export default function Inventory() {
   const [search, setSearch] = useState('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [sortConfig, setSortConfig] = useState<{ key: keyof Item, direction: 'asc' | 'desc' } | null>(null);
-  const [confirmAction, setConfirmAction] = useState<{ type: 'archive' | 'status' | 'export', payload?: any } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'delete' | 'status' | 'export', payload?: any } | null>(null);
 
-  const activeItems = items.filter(i => i.status !== 'Archived');
-
-  const filteredItems = activeItems.filter(item => {
+  const filteredItems = items.filter(item => {
     const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || 
                           item.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -24,8 +22,10 @@ export default function Inventory() {
   const sortedItems = [...filteredItems].sort((a, b) => {
     if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
-    if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
-    if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+    const aVal = a[key] || '';
+    const bVal = b[key] || '';
+    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
     return 0;
   });
 
@@ -62,24 +62,22 @@ export default function Inventory() {
     }
   };
 
-  const handleBulkArchive = () => {
-    setItems(prev => prev.map(item => 
-      selectedItems.has(item.id) ? { ...item, status: 'Archived' } : item
-    ));
+  const handleBulkDelete = () => {
+    setItems(prev => prev.filter(item => !selectedItems.has(item.id)));
     setSelectedItems(new Set());
   };
 
   const handleBulkStatusUpdate = (status: ItemStatus) => {
     setItems(prev => prev.map(item => 
-      selectedItems.has(item.id) ? { ...item, status } : item
+      selectedItems.has(item.id) ? { ...item, status, assignedTo: status === 'In Stock' ? undefined : item.assignedTo } : item
     ));
     setSelectedItems(new Set());
   };
 
   const handleExport = (itemsToExport: typeof items) => {
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "ID,Name,Category,Status,Date Added\n"
-      + itemsToExport.map(e => `${e.id},${e.name},${e.category},${e.status},${e.dateAdded}`).join("\n");
+      + "ID,Name,Category,Status,Employee ID,Date Added\n"
+      + itemsToExport.map(e => `${e.id},${e.name},${e.category},${e.status},${e.assignedTo || ''},${e.dateAdded}`).join("\n");
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -122,19 +120,16 @@ export default function Inventory() {
             <span>{selectedItems.size} items selected</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button onClick={() => setConfirmAction({ type: 'status', payload: 'Available' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
-              Mark Available
+            <button onClick={() => setConfirmAction({ type: 'status', payload: 'In Stock' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
+              Mark In Stock
             </button>
-            <button onClick={() => setConfirmAction({ type: 'status', payload: 'In Use' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
-              Mark In Use
-            </button>
-            <button onClick={() => setConfirmAction({ type: 'status', payload: 'Faulty' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
-              Mark Faulty
+            <button onClick={() => setConfirmAction({ type: 'status', payload: 'Disposed' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
+              Mark Disposed
             </button>
             <div className="hidden sm:block w-px h-6 bg-emerald-200 mx-1"></div>
-            <button onClick={() => setConfirmAction({ type: 'archive' })} className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
-              <Archive size={16} />
-              <span>Archive</span>
+            <button onClick={() => setConfirmAction({ type: 'delete' })} className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-red-200 text-red-700 rounded-lg hover:bg-red-50 text-sm font-medium transition-colors">
+              <Trash2 size={16} />
+              <span>Delete</span>
             </button>
             <button onClick={() => setConfirmAction({ type: 'export' })} className="flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm">
               <Download size={16} />
@@ -159,7 +154,8 @@ export default function Inventory() {
               <option value="Office Supplies">Office Supplies</option>
               <option value="Devices">Devices</option>
               <option value="Furniture">Furniture</option>
-              <option value="Construction tool">Construction tool</option>
+              <option value="Tools">Tools</option>
+              <option value="Other">Other</option>
             </select>
             <button className="p-2 text-slate-400 hover:text-emerald-600 border border-slate-200 rounded-xl bg-slate-50">
               <Filter size={20} />
@@ -210,10 +206,10 @@ export default function Inventory() {
                     {renderSortIcon('status')}
                   </div>
                 </th>
-                <th className="p-4 font-medium cursor-pointer group select-none hover:text-emerald-700 transition-colors" onClick={() => requestSort('dateAdded')}>
+                <th className="p-4 font-medium cursor-pointer group select-none hover:text-emerald-700 transition-colors" onClick={() => requestSort('assignedTo')}>
                   <div className="flex items-center">
-                    Date Added
-                    {renderSortIcon('dateAdded')}
+                    Employee ID
+                    {renderSortIcon('assignedTo')}
                   </div>
                 </th>
               </tr>
@@ -234,15 +230,14 @@ export default function Inventory() {
                   <td className="p-4 text-slate-600 whitespace-nowrap">{item.category}</td>
                   <td className="p-4 whitespace-nowrap">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      item.status === 'Available' ? 'bg-emerald-100 text-emerald-700' :
-                      item.status === 'In Use' ? 'bg-teal-100 text-teal-700' :
-                      item.status === 'Faulty' ? 'bg-red-100 text-red-700' :
+                      item.status === 'In Stock' ? 'bg-emerald-100 text-emerald-700' :
+                      item.status === 'Checked Out' ? 'bg-amber-100 text-amber-700' :
                       'bg-slate-100 text-slate-700'
                     }`}>
                       {item.status}
                     </span>
                   </td>
-                  <td className="p-4 text-slate-500 text-sm whitespace-nowrap">{item.dateAdded}</td>
+                  <td className="p-4 font-mono text-slate-500 text-sm whitespace-nowrap">{item.assignedTo || '-'}</td>
                 </tr>
               ))}
               {sortedItems.length === 0 && (
@@ -259,12 +254,12 @@ export default function Inventory() {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95">
             <h3 className="text-xl font-bold text-slate-800 mb-2">
-              {confirmAction.type === 'archive' && 'Archive Selected Items'}
+              {confirmAction.type === 'delete' && 'Delete Selected Items'}
               {confirmAction.type === 'status' && `Mark as ${confirmAction.payload}`}
               {confirmAction.type === 'export' && 'Export Selected Items'}
             </h3>
             <p className="text-slate-600 mb-6">
-              {confirmAction.type === 'archive' && `Are you sure you want to archive ${selectedItems.size} selected item(s)? This action will hide them from the active inventory.`}
+              {confirmAction.type === 'delete' && `Are you sure you want to permanently delete ${selectedItems.size} selected item(s)? This action cannot be undone.`}
               {confirmAction.type === 'status' && `Are you sure you want to change the status of ${selectedItems.size} selected item(s) to "${confirmAction.payload}"?`}
               {confirmAction.type === 'export' && `Are you sure you want to export ${selectedItems.size} selected item(s) to a CSV file?`}
             </p>
@@ -277,13 +272,13 @@ export default function Inventory() {
               </button>
               <button 
                 onClick={() => {
-                  if (confirmAction.type === 'archive') handleBulkArchive();
+                  if (confirmAction.type === 'delete') handleBulkDelete();
                   if (confirmAction.type === 'status') handleBulkStatusUpdate(confirmAction.payload);
                   if (confirmAction.type === 'export') handleBulkExport();
                   setConfirmAction(null);
                 }}
                 className={`px-4 py-2 text-white rounded-xl transition-colors font-medium ${
-                  confirmAction.type === 'archive' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
+                  confirmAction.type === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
                 }`}
               >
                 Confirm

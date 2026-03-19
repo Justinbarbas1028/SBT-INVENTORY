@@ -8,35 +8,26 @@ import { AppProvider, useAppContext } from './AppContext';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
 import Dashboard from './views/Dashboard';
-import RegisterItem from './views/RegisterItem';
-import ScanQR from './views/ScanQR';
 import Inventory from './views/Inventory';
-import ItemIssuance from './views/ItemIssuance';
-import MaintenanceHub from './views/MaintenanceHub';
-import Logistics from './views/Logistics';
-import Archive from './views/Archive';
+import CheckIn from './views/CheckIn';
+import CheckOut from './views/CheckOut';
+import History from './views/History';
 import ManageRoles from './views/ManageRoles';
-import QRScannerModal from './components/QRScannerModal';
-import { QrCode } from 'lucide-react';
 
 function AppContent() {
   const { currentUser } = useAppContext();
   const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
 
   if (!currentUser) return <div>Loading...</div>;
 
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard />;
-      case 'register-item': return <RegisterItem />;
-      case 'scan-qr': return <ScanQR />;
       case 'inventory': return <Inventory />;
-      case 'item-issuance': return <ItemIssuance />;
-      case 'maintenance': return <MaintenanceHub />;
-      case 'logistics': return <Logistics />;
-      case 'archive': return <Archive />;
+      case 'check-in': return <CheckIn />;
+      case 'check-out': return <CheckOut />;
+      case 'history': return <History />;
       case 'manage-roles': return <ManageRoles />;
       default: return <Dashboard />;
     }
@@ -65,19 +56,6 @@ function AppContent() {
         <main className="flex-1 overflow-y-auto">
           {renderView()}
         </main>
-
-        {/* Floating Action Button for QR Scan */}
-        <button
-          onClick={() => setIsScannerModalOpen(true)}
-          className="absolute bottom-6 right-6 p-4 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 hover:shadow-xl transition-all z-40 flex items-center justify-center"
-          title="Scan QR Code"
-        >
-          <QrCode size={28} />
-        </button>
-
-        {isScannerModalOpen && (
-          <QRScannerModal onClose={() => setIsScannerModalOpen(false)} />
-        )}
       </div>
     </div>
   );

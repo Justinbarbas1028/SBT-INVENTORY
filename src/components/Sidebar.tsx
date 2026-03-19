@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
-  LayoutDashboard, PackagePlus, QrCode, Package, 
-  ClipboardList, Wrench, Truck, Archive, Users 
+  LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine, History, Users 
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -13,13 +12,10 @@ interface SidebarProps {
 export default function Sidebar({ currentView, setCurrentView, role }: SidebarProps) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Admin', 'Employee'] },
-    { id: 'register-item', label: 'Register Item', icon: PackagePlus, roles: ['Super Admin', 'Admin'] },
-    { id: 'scan-qr', label: 'Scan QR', icon: QrCode, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'inventory', label: 'Inventory', icon: Package, roles: ['Super Admin', 'Admin', 'Employee'] },
-    { id: 'item-issuance', label: 'Item Issuance', icon: ClipboardList, roles: ['Super Admin', 'Admin', 'Employee'] },
-    { id: 'maintenance', label: 'Maintenance Hub', icon: Wrench, roles: ['Super Admin', 'Admin'] },
-    { id: 'logistics', label: 'Logistics', icon: Truck, roles: ['Super Admin', 'Admin'] },
-    { id: 'archive', label: 'Archive', icon: Archive, roles: ['Super Admin', 'Admin'] },
+    { id: 'check-in', label: 'Check In', icon: ArrowDownToLine, roles: ['Super Admin', 'Admin', 'Employee'] },
+    { id: 'check-out', label: 'Check Out', icon: ArrowUpFromLine, roles: ['Super Admin', 'Admin', 'Employee'] },
+    { id: 'history', label: 'History', icon: History, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'manage-roles', label: 'Manage Roles', icon: Users, roles: ['Super Admin'] },
   ];
 
@@ -28,7 +24,7 @@ export default function Sidebar({ currentView, setCurrentView, role }: SidebarPr
   return (
     <div className="w-64 bg-slate-900 text-white h-full flex flex-col shadow-xl md:shadow-none">
       <div className="p-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight text-emerald-400">SBT Inventory</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-emerald-400">Simple Inventory</h1>
       </div>
       <nav className="flex-1 px-4 space-y-2 overflow-y-auto pb-6">
         {filteredNav.map((item) => {
