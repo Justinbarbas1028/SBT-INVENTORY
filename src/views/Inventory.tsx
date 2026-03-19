@@ -9,6 +9,7 @@ export default function Inventory() {
   const [search, setSearch] = useState('');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [sortConfig, setSortConfig] = useState<{ key: keyof Item, direction: 'asc' | 'desc' } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ type: 'archive' | 'status' | 'export', payload?: any } | null>(null);
 
   const activeItems = items.filter(i => i.status !== 'Archived');
 
@@ -120,21 +121,21 @@ export default function Inventory() {
             <span>{selectedItems.size} items selected</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button onClick={() => handleBulkStatusUpdate('Available')} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
+            <button onClick={() => setConfirmAction({ type: 'status', payload: 'Available' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
               Mark Available
             </button>
-            <button onClick={() => handleBulkStatusUpdate('In Use')} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
+            <button onClick={() => setConfirmAction({ type: 'status', payload: 'In Use' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
               Mark In Use
             </button>
-            <button onClick={() => handleBulkStatusUpdate('Faulty')} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
+            <button onClick={() => setConfirmAction({ type: 'status', payload: 'Faulty' })} className="px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
               Mark Faulty
             </button>
             <div className="hidden sm:block w-px h-6 bg-emerald-200 mx-1"></div>
-            <button onClick={handleBulkArchive} className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
+            <button onClick={() => setConfirmAction({ type: 'archive' })} className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded-lg hover:bg-emerald-100 text-sm font-medium transition-colors">
               <Archive size={16} />
               <span>Archive</span>
             </button>
-            <button onClick={handleBulkExport} className="flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm">
+            <button onClick={() => setConfirmAction({ type: 'export' })} className="flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors shadow-sm">
               <Download size={16} />
               <span>Export Selected</span>
             </button>
@@ -252,6 +253,44 @@ export default function Inventory() {
           </table>
         </div>
       </div>
+
+      {confirmAction && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95">
+            <h3 className="text-xl font-bold text-slate-800 mb-2">
+              {confirmAction.type === 'archive' && 'Archive Selected Items'}
+              {confirmAction.type === 'status' && `Mark as ${confirmAction.payload}`}
+              {confirmAction.type === 'export' && 'Export Selected Items'}
+            </h3>
+            <p className="text-slate-600 mb-6">
+              {confirmAction.type === 'archive' && `Are you sure you want to archive ${selectedItems.size} selected item(s)? This action will hide them from the active inventory.`}
+              {confirmAction.type === 'status' && `Are you sure you want to change the status of ${selectedItems.size} selected item(s) to "${confirmAction.payload}"?`}
+              {confirmAction.type === 'export' && `Are you sure you want to export ${selectedItems.size} selected item(s) to a CSV file?`}
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button 
+                onClick={() => setConfirmAction(null)}
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  if (confirmAction.type === 'archive') handleBulkArchive();
+                  if (confirmAction.type === 'status') handleBulkStatusUpdate(confirmAction.payload);
+                  if (confirmAction.type === 'export') handleBulkExport();
+                  setConfirmAction(null);
+                }}
+                className={`px-4 py-2 text-white rounded-xl transition-colors font-medium ${
+                  confirmAction.type === 'archive' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
+                }`}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
