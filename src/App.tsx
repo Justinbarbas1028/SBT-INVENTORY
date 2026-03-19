@@ -16,12 +16,14 @@ import MaintenanceHub from './views/MaintenanceHub';
 import Logistics from './views/Logistics';
 import Archive from './views/Archive';
 import ManageRoles from './views/ManageRoles';
+import QRScannerModal from './components/QRScannerModal';
 import { QrCode } from 'lucide-react';
 
 function AppContent() {
   const { currentUser } = useAppContext();
   const [currentView, setCurrentView] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
 
   if (!currentUser) return <div>Loading...</div>;
 
@@ -66,12 +68,16 @@ function AppContent() {
 
         {/* Floating Action Button for QR Scan */}
         <button
-          onClick={() => setCurrentView('scan-qr')}
+          onClick={() => setIsScannerModalOpen(true)}
           className="absolute bottom-6 right-6 p-4 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 hover:shadow-xl transition-all z-40 flex items-center justify-center"
           title="Scan QR Code"
         >
           <QrCode size={28} />
         </button>
+
+        {isScannerModalOpen && (
+          <QRScannerModal onClose={() => setIsScannerModalOpen(false)} />
+        )}
       </div>
     </div>
   );
