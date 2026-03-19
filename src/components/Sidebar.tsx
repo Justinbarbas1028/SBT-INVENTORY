@@ -26,11 +26,11 @@ export default function Sidebar({ currentView, setCurrentView, role }: SidebarPr
   const filteredNav = navItems.filter(item => item.roles.includes(role));
 
   return (
-    <div className="w-64 bg-slate-900 text-white h-screen flex flex-col">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold tracking-tight text-indigo-400">SBT Inventory</h1>
+    <div className="w-64 bg-slate-900 text-white h-full flex flex-col shadow-xl md:shadow-none">
+      <div className="p-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight text-emerald-400">SBT Inventory</h1>
       </div>
-      <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-4 space-y-2 overflow-y-auto pb-6">
         {filteredNav.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -40,7 +40,7 @@ export default function Sidebar({ currentView, setCurrentView, role }: SidebarPr
               onClick={() => setCurrentView(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors ${
                 isActive 
-                  ? 'bg-indigo-600 text-white' 
+                  ? 'bg-emerald-600 text-white' 
                   : 'text-slate-300 hover:bg-slate-800 hover:text-white'
               }`}
             >

@@ -17,17 +17,17 @@ export default function Inventory() {
   });
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h2 className="text-2xl font-bold text-slate-800">Inventory Management</h2>
         <div className="flex space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors">
+          <button className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors">
             <Download size={18} />
-            <span>Export Excel</span>
+            <span className="hidden sm:inline">Export</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors">
+          <button className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors">
             <Printer size={18} />
-            <span>Print</span>
+            <span className="hidden sm:inline">Print</span>
           </button>
         </div>
       </div>
@@ -38,7 +38,7 @@ export default function Inventory() {
             <select 
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50"
+              className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
             >
               <option value="All">All Categories</option>
               <option value="Office Supplies">Office Supplies</option>
@@ -46,7 +46,7 @@ export default function Inventory() {
               <option value="Furniture">Furniture</option>
               <option value="Construction tool">Construction tool</option>
             </select>
-            <button className="p-2 text-slate-400 hover:text-indigo-600 border border-slate-200 rounded-xl bg-slate-50">
+            <button className="p-2 text-slate-400 hover:text-emerald-600 border border-slate-200 rounded-xl bg-slate-50">
               <Filter size={20} />
             </button>
           </div>
@@ -55,7 +55,7 @@ export default function Inventory() {
             placeholder="Search inventory..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-64"
+            className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-64"
           />
         </div>
 
@@ -73,20 +73,20 @@ export default function Inventory() {
             <tbody>
               {filteredItems.map(item => (
                 <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                  <td className="p-4 font-mono text-sm text-slate-600">{item.id}</td>
-                  <td className="p-4 font-medium text-slate-800">{item.name}</td>
-                  <td className="p-4 text-slate-600">{item.category}</td>
-                  <td className="p-4">
+                  <td className="p-4 font-mono text-sm text-slate-600 whitespace-nowrap">{item.id}</td>
+                  <td className="p-4 font-medium text-slate-800 whitespace-nowrap">{item.name}</td>
+                  <td className="p-4 text-slate-600 whitespace-nowrap">{item.category}</td>
+                  <td className="p-4 whitespace-nowrap">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       item.status === 'Available' ? 'bg-emerald-100 text-emerald-700' :
-                      item.status === 'In Use' ? 'bg-blue-100 text-blue-700' :
+                      item.status === 'In Use' ? 'bg-teal-100 text-teal-700' :
                       item.status === 'Faulty' ? 'bg-red-100 text-red-700' :
                       'bg-slate-100 text-slate-700'
                     }`}>
                       {item.status}
                     </span>
                   </td>
-                  <td className="p-4 text-slate-500 text-sm">{item.dateAdded}</td>
+                  <td className="p-4 text-slate-500 text-sm whitespace-nowrap">{item.dateAdded}</td>
                 </tr>
               ))}
               {filteredItems.length === 0 && (

@@ -28,12 +28,12 @@ export default function Logistics() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h2 className="text-2xl font-bold text-slate-800">Logistics & Fleet</h2>
         <button 
           onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium"
+          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium"
         >
           <Plus size={18} />
           <span>Register Vehicle</span>
@@ -51,7 +51,7 @@ export default function Logistics() {
                 type="text" 
                 value={newVehicle.plateNumber}
                 onChange={e => setNewVehicle({...newVehicle, plateNumber: e.target.value})}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div>
@@ -61,7 +61,7 @@ export default function Logistics() {
                 type="text" 
                 value={newVehicle.orCr}
                 onChange={e => setNewVehicle({...newVehicle, orCr: e.target.value})}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div className="md:col-span-2">
@@ -69,7 +69,7 @@ export default function Logistics() {
               <select 
                 value={newVehicle.codingDay}
                 onChange={e => setNewVehicle({...newVehicle, codingDay: e.target.value})}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map(d => (
                   <option key={d} value={d}>{d}</option>
@@ -94,7 +94,7 @@ export default function Logistics() {
               </div>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                 vehicle.status === 'Available' ? 'bg-emerald-100 text-emerald-700' :
-                vehicle.status === 'On Route' ? 'bg-blue-100 text-blue-700' :
+                vehicle.status === 'On Route' ? 'bg-teal-100 text-teal-700' :
                 'bg-amber-100 text-amber-700'
               }`}>
                 {vehicle.status}
@@ -120,7 +120,7 @@ export default function Logistics() {
               {vehicle.status === 'Available' ? (
                 <button 
                   onClick={() => handleDispatch(vehicle.id)}
-                  className="w-full py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-medium transition-colors"
+                  className="w-full py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-medium transition-colors"
                 >
                   Dispatch Vehicle
                 </button>

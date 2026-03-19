@@ -27,7 +27,7 @@ export default function MaintenanceHub() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <h2 className="text-2xl font-bold text-slate-800 mb-6">Maintenance Hub</h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -42,22 +42,22 @@ export default function MaintenanceHub() {
             {faultyItems.length > 0 ? (
               <ul className="divide-y divide-slate-100">
                 {faultyItems.map(item => (
-                  <li key={item.id} className="p-6 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                    <div>
+                  <li key={item.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-slate-50 transition-colors">
+                    <div className="mb-4 sm:mb-0">
                       <p className="font-medium text-slate-800">{item.name}</p>
                       <p className="text-sm text-slate-500 font-mono mt-1">{item.id} • {item.category}</p>
                     </div>
                     <div className="flex space-x-2">
                       <button 
                         onClick={() => handleMarkRepaired(item.id)}
-                        className="flex items-center space-x-1 px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-sm font-medium transition-colors"
+                        className="flex-1 sm:flex-none flex items-center justify-center space-x-1 px-3 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-sm font-medium transition-colors"
                       >
                         <CheckCircle size={16} />
                         <span>Repaired</span>
                       </button>
                       <button 
                         onClick={() => handleMarkDisposal(item.id)}
-                        className="flex items-center space-x-1 px-3 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl text-sm font-medium transition-colors"
+                        className="flex-1 sm:flex-none flex items-center justify-center space-x-1 px-3 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-xl text-sm font-medium transition-colors"
                       >
                         <Trash2 size={16} />
                         <span>Dispose</span>
@@ -84,7 +84,7 @@ export default function MaintenanceHub() {
               value={inputId}
               onChange={(e) => setInputId(e.target.value)}
               placeholder="Enter Item ID..."
-              className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             <button 
               onClick={handleManualScan}

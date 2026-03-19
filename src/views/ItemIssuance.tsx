@@ -39,12 +39,12 @@ export default function ItemIssuance() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h2 className="text-2xl font-bold text-slate-800">Item Issuance</h2>
         <button 
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium"
+          className="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium"
         >
           {showForm ? 'View Requests' : 'Fill Request Form'}
         </button>
@@ -68,7 +68,7 @@ export default function ItemIssuance() {
               <select 
                 value={deviceType}
                 onChange={(e) => setDeviceType(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="Office Supplies">Office Supplies</option>
                 <option value="Devices">Devices</option>
@@ -78,7 +78,7 @@ export default function ItemIssuance() {
             </div>
             <button 
               type="submit"
-              className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium"
+              className="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium"
             >
               Submit Request
             </button>
@@ -86,52 +86,54 @@ export default function ItemIssuance() {
         </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
-                <th className="p-4 font-medium">Request ID</th>
-                <th className="p-4 font-medium">Employee</th>
-                <th className="p-4 font-medium">Requested Type</th>
-                <th className="p-4 font-medium">Date</th>
-                <th className="p-4 font-medium">Status</th>
-                <th className="p-4 font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {requests.map(req => (
-                <tr key={req.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                  <td className="p-4 font-mono text-sm text-slate-600">{req.id}</td>
-                  <td className="p-4 font-medium text-slate-800">{req.employeeName}</td>
-                  <td className="p-4 text-slate-600">{req.deviceType}</td>
-                  <td className="p-4 text-slate-500 text-sm">{req.dateRequested}</td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      req.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
-                      req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {req.status}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    {req.status === 'Pending' && currentUser?.role !== 'Employee' && (
-                      <button 
-                        onClick={() => handleIssue(req.id)}
-                        className="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        Verify & Issue
-                      </button>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
+                  <th className="p-4 font-medium">Request ID</th>
+                  <th className="p-4 font-medium">Employee</th>
+                  <th className="p-4 font-medium">Requested Type</th>
+                  <th className="p-4 font-medium">Date</th>
+                  <th className="p-4 font-medium">Status</th>
+                  <th className="p-4 font-medium">Action</th>
                 </tr>
-              ))}
-              {requests.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-500">No requests found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {requests.map(req => (
+                  <tr key={req.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <td className="p-4 font-mono text-sm text-slate-600 whitespace-nowrap">{req.id}</td>
+                    <td className="p-4 font-medium text-slate-800 whitespace-nowrap">{req.employeeName}</td>
+                    <td className="p-4 text-slate-600 whitespace-nowrap">{req.deviceType}</td>
+                    <td className="p-4 text-slate-500 text-sm whitespace-nowrap">{req.dateRequested}</td>
+                    <td className="p-4 whitespace-nowrap">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        req.status === 'Pending' ? 'bg-amber-100 text-amber-700' :
+                        req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      {req.status === 'Pending' && currentUser?.role !== 'Employee' && (
+                        <button 
+                          onClick={() => handleIssue(req.id)}
+                          className="px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Verify & Issue
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {requests.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-slate-500">No requests found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -11,14 +11,14 @@ export default function Dashboard() {
   const availableVehicles = vehicles.filter(v => v.status === 'Available').length;
 
   const stats = [
-    { label: 'Total Items', value: totalItems, icon: Package, color: 'bg-blue-500' },
+    { label: 'Total Items', value: totalItems, icon: Package, color: 'bg-teal-500' },
     { label: 'Items In Use', value: itemsInUse, icon: CheckCircle, color: 'bg-emerald-500' },
     { label: 'Faulty Items', value: faultyItems, icon: Wrench, color: 'bg-red-500' },
-    { label: 'Available Vehicles', value: availableVehicles, icon: Truck, color: 'bg-indigo-500' },
+    { label: 'Available Vehicles', value: availableVehicles, icon: Truck, color: 'bg-emerald-500' },
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <h2 className="text-2xl font-bold text-slate-800 mb-6">Dashboard Overview</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
