@@ -16,7 +16,8 @@ export default function Inventory() {
   const filteredItems = activeItems.filter(item => {
     const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || 
-                          item.id.toLowerCase().includes(search.toLowerCase());
+                          item.id.toLowerCase().includes(search.toLowerCase()) ||
+                          item.category.toLowerCase().includes(search.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
