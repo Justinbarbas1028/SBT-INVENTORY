@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Item, User, Transaction, Role, LogisticsRequest } from './types';
 import { initialItems, initialUsers, initialTransactions, initialLogisticsRequests } from './store';
-import { ThemeMode, applyTheme, getPreferredTheme, persistTheme } from './theme';
+import { ThemeMode, applyTheme, getPreferredTheme, persistTheme, startRainbowTheme } from './theme';
 
 interface AppContextType {
   currentUser: User | null;
@@ -31,6 +31,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     applyTheme(theme);
     persistTheme(theme);
+
+    if (theme !== 'rainbow') return;
+
+    return startRainbowTheme();
   }, [theme]);
 
   return (

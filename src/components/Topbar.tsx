@@ -1,9 +1,24 @@
 import React from 'react';
-import { Bell, Search, UserCircle, LogOut, Menu, Moon, Sun } from 'lucide-react';
+import { Bell, Search, UserCircle, LogOut, Menu, Moon, Palette, Sun } from 'lucide-react';
 import { useAppContext } from '../AppContext';
+import { ThemeMode } from '../theme';
+
+const themeOrder: ThemeMode[] = ['light', 'dark', 'rainbow'];
+const themeLabel: Record<ThemeMode, string> = {
+  light: 'Light',
+  dark: 'Dark',
+  rainbow: 'Rainbow',
+};
+
+const themeIcon: Record<ThemeMode, React.ReactNode> = {
+  light: <Moon size={18} />,
+  dark: <Sun size={18} />,
+  rainbow: <Palette size={18} />,
+};
 
 export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { currentUser, users, setCurrentUser, theme, setTheme } = useAppContext();
+  const nextTheme = themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length];
 
   return (
     <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-6 shrink-0 transition-colors">
@@ -24,15 +39,15 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
       <div className="flex items-center space-x-2 md:space-x-4 ml-4">
         <button
           type="button"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onClick={() => setTheme(nextTheme)}
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 transition-colors hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          aria-pressed={theme === 'dark'}
-          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          aria-label={`Switch to ${nextTheme} mode`}
+          aria-pressed={theme !== 'light'}
+          title={`Current theme: ${themeLabel[theme]}. Switch to ${themeLabel[nextTheme]} mode`}
         >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          {themeIcon[nextTheme]}
           <span className="hidden lg:inline text-sm font-medium">
-            {theme === 'dark' ? 'Light' : 'Dark'}
+            {themeLabel[nextTheme]}
           </span>
         </button>
 
