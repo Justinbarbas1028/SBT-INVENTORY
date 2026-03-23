@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine, History, Users 
+  LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine, History, Users, Truck
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -15,6 +15,7 @@ export default function Sidebar({ currentView, setCurrentView, role }: SidebarPr
     { id: 'inventory', label: 'Inventory', icon: Package, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'check-in', label: 'Check In', icon: ArrowDownToLine, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'check-out', label: 'Check Out', icon: ArrowUpFromLine, roles: ['Super Admin', 'Admin', 'Employee'] },
+    { id: 'logistics', label: 'Logistics', icon: Truck, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'history', label: 'History', icon: History, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'manage-roles', label: 'Manage Roles', icon: Users, roles: ['Super Admin'] },
   ];

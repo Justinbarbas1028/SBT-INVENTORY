@@ -34,3 +34,25 @@ export interface Transaction {
   person: string;
   notes: string;
 }
+
+export type LogisticsType = 'Inbound' | 'Outbound' | 'Transfer' | 'Return';
+export type LogisticsPriority = 'Low' | 'Medium' | 'High';
+export type LogisticsStatus = 'Requested' | 'Approved' | 'Packed' | 'In Transit' | 'Delivered' | 'Returned' | 'Cancelled';
+
+export interface LogisticsRequest {
+  id: string;
+  type: LogisticsType;
+  itemId: string;
+  itemName: string;
+  quantity: number;
+  origin: string;
+  destination: string;
+  requestedBy: string;
+  handler: string;
+  priority: LogisticsPriority;
+  status: LogisticsStatus;
+  scheduledDate: string;
+  createdAt: string;
+  updatedAt: string;
+  notes?: string;
+}

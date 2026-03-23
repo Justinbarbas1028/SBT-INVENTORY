@@ -11,12 +11,13 @@ import Dashboard from './views/Dashboard';
 import Inventory from './views/Inventory';
 import CheckIn from './views/CheckIn';
 import CheckOut from './views/CheckOut';
+import Logistics from './views/Logistics';
 import History from './views/History';
 import ManageRoles from './views/ManageRoles';
 
 function AppContent() {
   const { currentUser } = useAppContext();
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'check-in' | 'check-out' | 'logistics' | 'history' | 'manage-roles'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!currentUser) return <div>Loading...</div>;
@@ -27,6 +28,7 @@ function AppContent() {
       case 'inventory': return <Inventory />;
       case 'check-in': return <CheckIn />;
       case 'check-out': return <CheckOut />;
+      case 'logistics': return <Logistics />;
       case 'history': return <History />;
       case 'manage-roles': return <ManageRoles />;
       default: return <Dashboard />;
@@ -46,7 +48,7 @@ function AppContent() {
       <div className={`fixed inset-y-0 left-0 z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-200 ease-in-out`}>
         <Sidebar 
           currentView={currentView} 
-          setCurrentView={(view) => { setCurrentView(view); setIsSidebarOpen(false); }} 
+          setCurrentView={(view) => { setCurrentView(view as typeof currentView); setIsSidebarOpen(false); }} 
           role={currentUser.role} 
         />
       </div>

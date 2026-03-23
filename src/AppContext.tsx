@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Item, User, Transaction, Role } from './types';
-import { initialItems, initialUsers, initialTransactions } from './store';
+import { Item, User, Transaction, Role, LogisticsRequest } from './types';
+import { initialItems, initialUsers, initialTransactions, initialLogisticsRequests } from './store';
 
 interface AppContextType {
   currentUser: User | null;
@@ -11,6 +11,8 @@ interface AppContextType {
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
   transactions: Transaction[];
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
+  logisticsRequests: LogisticsRequest[];
+  setLogisticsRequests: React.Dispatch<React.SetStateAction<LogisticsRequest[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -20,13 +22,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentUser, setCurrentUser] = useState<User | null>(users[0]); // Default to Super Admin
   const [items, setItems] = useState<Item[]>(initialItems);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const [logisticsRequests, setLogisticsRequests] = useState<LogisticsRequest[]>(initialLogisticsRequests);
 
   return (
     <AppContext.Provider value={{
       currentUser, setCurrentUser,
       items, setItems,
       users, setUsers,
-      transactions, setTransactions
+      transactions, setTransactions,
+      logisticsRequests, setLogisticsRequests,
     }}>
       {children}
     </AppContext.Provider>
