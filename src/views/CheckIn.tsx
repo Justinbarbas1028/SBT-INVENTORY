@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../AppContext';
-import { PackagePlus, Search, CheckCircle, QrCode } from 'lucide-react';
+import { ArrowDownToLine, AlertCircle, CheckCircle, QrCode, Search } from 'lucide-react';
 import { ItemCategory } from '../types';
 import QRScannerModal from '../components/QRScannerModal';
 
@@ -11,44 +11,48 @@ export default function CheckIn() {
   const [category, setCategory] = useState<ItemCategory>('Other');
   const [notes, setNotes] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [isScanning, setIsScanning] = useState(false);
 
   const handleCheckIn = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!itemId || !name) return;
 
     const existingItem = items.find(i => i.id === itemId);
-    const date = new Date().toISOString();
-
-    if (existingItem) {
-      // Update existing item
-      setItems(prev => prev.map(i => 
-        i.id === itemId ? { ...i, status: 'In Stock', assignedTo: undefined, name, category } : i
-      ));
-    } else {
-      // Create new item
-      setItems(prev => [...prev, {
-        id: itemId,
-        name,
-        category,
-        status: 'In Stock',
-        qrCode: `QR-${itemId}`,
-        dateAdded: new Date().toISOString().split('T')[0]
-      }]);
+    if (!existingItem) {
+      setSuccessMessage('');
+      setErrorMessage('Item not found. Register it first before checking it in.');
+      return;
     }
+
+    if (existingItem.status === 'Disposed') {
+      setSuccessMessage('');
+      setErrorMessage('Disposed items cannot be checked in.');
+      return;
+    }
+
+    const date = new Date().toISOString();
+    const updatedName = name.trim();
+    const updatedCategory = category;
+
+    setItems(prev => prev.map(i =>
+      i.id === itemId
+        ? { ...i, status: 'In Stock', assignedTo: undefined, name: updatedName, category: updatedCategory }
+        : i
+    ));
 
     // Record transaction
     setTransactions(prev => [{
       id: `TXN-${Date.now()}`,
       itemId,
-      itemName: name,
+      itemName: updatedName,
       type: 'IN',
       date,
       person: currentUser?.name || 'Unknown',
       notes
     }, ...prev]);
 
-    setSuccessMessage(`Successfully checked in ${name} (${itemId})`);
+    setSuccessMessage(`Successfully checked in ${updatedName} (${itemId})`);
+    setErrorMessage('');
     setItemId('');
     setName('');
     setCategory('Other');
@@ -64,10 +68,14 @@ export default function CheckIn() {
 
   const updateItemDetails = (id: string) => {
     setItemId(id);
+    setErrorMessage('');
     const existingItem = items.find(i => i.id === id);
     if (existingItem) {
       setName(existingItem.name);
       setCategory(existingItem.category);
+    } else {
+      setName('');
+      setCategory('Other');
     }
   };
 
@@ -80,13 +88,20 @@ export default function CheckIn() {
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-slate-800">Check In Item</h2>
-        <p className="text-slate-600">Register a new item or return an existing item to stock.</p>
+        <p className="text-slate-600">Return an existing item to stock.</p>
       </div>
 
       {successMessage && (
         <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
           <CheckCircle size={20} />
           <span>{successMessage}</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center space-x-2 animate-in fade-in slide-in-from-top-2">
+          <AlertCircle size={20} />
+          <span>{errorMessage}</span>
         </div>
       )}
 
@@ -161,7 +176,7 @@ export default function CheckIn() {
               type="submit"
               className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium shadow-sm"
             >
-              <PackagePlus size={20} />
+              <ArrowDownToLine size={20} />
               <span>Check In Item</span>
             </button>
           </div>

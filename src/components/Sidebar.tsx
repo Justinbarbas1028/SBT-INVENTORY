@@ -1,18 +1,26 @@
 import React from 'react';
 import { 
-  LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine, History, Users, Truck
+  LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine, History, Users, Truck, PackagePlus
 } from 'lucide-react';
+import { type LucideIcon } from 'lucide-react';
+import { AppView, Role } from '../types';
 
 interface SidebarProps {
-  currentView: string;
-  setCurrentView: (view: string) => void;
-  role: string;
+  currentView: AppView;
+  setCurrentView: (view: AppView) => void;
+  role: Role;
 }
 
 export default function Sidebar({ currentView, setCurrentView, role }: SidebarProps) {
-  const navItems = [
+  const navItems: Array<{
+    id: AppView;
+    label: string;
+    icon: LucideIcon;
+    roles: Role[];
+  }> = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'inventory', label: 'Inventory', icon: Package, roles: ['Super Admin', 'Admin', 'Employee'] },
+    { id: 'register-item', label: 'Register Item', icon: PackagePlus, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'check-in', label: 'Check In', icon: ArrowDownToLine, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'check-out', label: 'Check Out', icon: ArrowUpFromLine, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'logistics', label: 'Logistics', icon: Truck, roles: ['Super Admin', 'Admin', 'Employee'] },

@@ -1,4 +1,13 @@
 export type Role = 'Super Admin' | 'Admin' | 'Employee';
+export type AppView =
+  | 'dashboard'
+  | 'inventory'
+  | 'check-in'
+  | 'check-out'
+  | 'register-item'
+  | 'logistics'
+  | 'history'
+  | 'manage-roles';
 
 export type ItemCategory = 'Office Supplies' | 'Devices' | 'Furniture' | 'Tools' | 'Other';
 export type ItemStatus = 'In Stock' | 'Checked Out' | 'Disposed';
