@@ -1,4 +1,4 @@
-import { Item, User, Transaction, LogisticsRequest } from './types';
+import { BorrowRequestTicket, Item, User, Transaction, LogisticsRequest } from './types';
 
 export const initialItems: Item[] = [
   { id: 'ITM-001', name: 'Laptop ThinkPad', category: 'Devices', status: 'In Stock', qrCode: 'QR-001', dateAdded: '2023-10-01' },
@@ -85,5 +85,17 @@ export const initialLogisticsRequests: LogisticsRequest[] = [
     createdAt: '2026-03-21T03:30:00Z',
     updatedAt: '2026-03-22T10:15:00Z',
     notes: 'Damaged item collected for inspection',
+  },
+];
+
+export const initialBorrowRequestTickets: BorrowRequestTicket[] = [
+  {
+    id: 'BRQ-001',
+    employeeId: 'EMP-002',
+    employeeEmail: 'bob@sbt.com',
+    requestedBy: 'Bob Staff',
+    items: [{ itemId: 'ITM-001', itemName: 'Laptop ThinkPad', quantity: 1 }],
+    status: 'Pending',
+    createdAt: '2026-03-23T06:00:00Z',
   },
 ];

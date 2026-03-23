@@ -16,6 +16,7 @@ import Logistics from './views/Logistics';
 import History from './views/History';
 import ManageRoles from './views/ManageRoles';
 import RegisterItem from './views/RegisterItem';
+import RequestItem from './views/RequestItem';
 import { AppView } from './types';
 
 function AppContent() {
@@ -43,6 +44,7 @@ function AppContent() {
       case 'logistics': return <Logistics />;
       case 'history': return <History />;
       case 'manage-roles': return <ManageRoles />;
+      case 'request-item': return <RequestItem />;
       default: return <Dashboard />;
     }
   };

@@ -7,7 +7,8 @@ export type AppView =
   | 'register-item'
   | 'logistics'
   | 'history'
-  | 'manage-roles';
+  | 'manage-roles'
+  | 'request-item';
 
 export type ItemCategory = 'Office Supplies' | 'Devices' | 'Furniture' | 'Tools' | 'Other';
 export type ItemStatus = 'In Stock' | 'Checked Out' | 'Disposed';
@@ -68,4 +69,25 @@ export interface LogisticsRequest {
   createdAt: string;
   updatedAt: string;
   notes?: string;
+}
+
+export type BorrowRequestStatus = 'Pending' | 'Approved' | 'Denied';
+
+export interface BorrowRequestItem {
+  itemId: string;
+  itemName: string;
+  quantity: number;
+}
+
+export interface BorrowRequestTicket {
+  id: string;
+  employeeId: string;
+  employeeEmail: string;
+  requestedBy: string;
+  items: BorrowRequestItem[];
+  status: BorrowRequestStatus;
+  createdAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewNote?: string;
 }

@@ -1,6 +1,6 @@
 import React from 'react';
-import { 
-  LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine, History, Users, Truck, PackagePlus
+import {
+  LayoutDashboard, Package, ArrowDownToLine, ArrowUpFromLine, History, Users, Truck, ClipboardList
 } from 'lucide-react';
 import { type LucideIcon } from 'lucide-react';
 import { AppView, Role } from '../types';
@@ -20,7 +20,7 @@ export default function Sidebar({ currentView, setCurrentView, role }: SidebarPr
   }> = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'inventory', label: 'Inventory', icon: Package, roles: ['Super Admin', 'Admin', 'Employee'] },
-    { id: 'register-item', label: 'Register Item', icon: PackagePlus, roles: ['Super Admin', 'Admin', 'Employee'] },
+    { id: 'request-item', label: 'Request Item', icon: ClipboardList, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'check-in', label: 'Check In', icon: ArrowDownToLine, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'check-out', label: 'Check Out', icon: ArrowUpFromLine, roles: ['Super Admin', 'Admin', 'Employee'] },
     { id: 'logistics', label: 'Logistics', icon: Truck, roles: ['Super Admin', 'Admin', 'Employee'] },
