@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppProvider, useAppContext } from './AppContext';
 import Sidebar from './components/Sidebar';
 import Topbar from './components/Topbar';
@@ -17,6 +17,7 @@ import History from './views/History';
 import ManageRoles from './views/ManageRoles';
 import RegisterItem from './views/RegisterItem';
 import RequestItem from './views/RequestItem';
+import RequestLogs from './views/RequestLogs';
 import { AppView } from './types';
 
 function AppContent() {
@@ -25,6 +26,15 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const fabViews: AppView[] = ['dashboard', 'inventory', 'logistics'];
   const showFab = !isSidebarOpen && fabViews.includes(currentView);
+  const isSuperAdmin = currentUser?.role === 'Super Admin';
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    if ((currentView === 'manage-roles' || currentView === 'request-logs') && !isSuperAdmin) {
+      setCurrentView('dashboard');
+    }
+  }, [currentUser, currentView, isSuperAdmin]);
 
   if (!currentUser) {
     return (
@@ -43,8 +53,9 @@ function AppContent() {
       case 'register-item': return <RegisterItem />;
       case 'logistics': return <Logistics />;
       case 'history': return <History />;
-      case 'manage-roles': return <ManageRoles />;
+      case 'manage-roles': return isSuperAdmin ? <ManageRoles /> : <Dashboard />;
       case 'request-item': return <RequestItem />;
+      case 'request-logs': return isSuperAdmin ? <RequestLogs /> : <Dashboard />;
       default: return <Dashboard />;
     }
   };

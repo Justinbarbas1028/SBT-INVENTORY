@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useAppContext } from '../AppContext';
+import { BorrowRequestTicket, Item } from '../types';
 import { AlertCircle, CheckCircle, Plus, Send, Trash2 } from 'lucide-react';
 
 interface BorrowLineItem {
@@ -12,11 +13,24 @@ const createLineItem = (itemId = ''): BorrowLineItem => ({
   quantity: 1,
 });
 
+const getDefaultBorrowItemId = (inventoryItems: Pick<Item, 'id' | 'status'>[]) =>
+  inventoryItems.find(item => item.status !== 'Disposed')?.id ?? inventoryItems[0]?.id ?? '';
+
+const getNextRequestId = (tickets: BorrowRequestTicket[]) => {
+  const nextNumber = tickets.reduce((max, ticket) => {
+    const match = ticket.id.match(/^BRQ-(\d+)$/i);
+    if (!match) return max;
+    return Math.max(max, Number(match[1]));
+  }, 0) + 1;
+
+  return `BRQ-${String(nextNumber).padStart(3, '0')}`;
+};
+
 export default function RequestItem() {
-  const { items } = useAppContext();
+  const { items, users, borrowRequestTickets, setBorrowRequestTickets } = useAppContext();
   const [employeeId, setEmployeeId] = useState('');
   const [email, setEmail] = useState('');
-  const [lineItems, setLineItems] = useState<BorrowLineItem[]>([createLineItem(items[0]?.id ?? '')]);
+  const [lineItems, setLineItems] = useState<BorrowLineItem[]>([createLineItem(getDefaultBorrowItemId(items))]);
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const availableItems = useMemo(
@@ -43,7 +57,7 @@ export default function RequestItem() {
   const resetForm = () => {
     setEmployeeId('');
     setEmail('');
-    setLineItems([createLineItem(availableItems[0]?.id ?? '')]);
+    setLineItems([createLineItem(getDefaultBorrowItemId(items))]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -78,9 +92,34 @@ export default function RequestItem() {
       }
     }
 
+    const normalizedEmployeeId = employeeId.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    const matchedUser = users.find(user =>
+      user.employeeNumber.toLowerCase() === normalizedEmployeeId.toLowerCase() ||
+      user.email.toLowerCase() === normalizedEmail
+    );
+    const now = new Date().toISOString();
+    const newRequest: BorrowRequestTicket = {
+      id: getNextRequestId(borrowRequestTickets),
+      employeeId: normalizedEmployeeId,
+      employeeEmail: email.trim(),
+      requestedBy: matchedUser?.name || normalizedEmployeeId || email.trim() || 'Unknown',
+      items: lineItems.map(line => {
+        const selectedItem = items.find(item => item.id === line.itemId)!;
+        return {
+          itemId: selectedItem.id,
+          itemName: selectedItem.name,
+          quantity: line.quantity,
+        };
+      }),
+      status: 'Pending',
+      createdAt: now,
+    };
+
+    setBorrowRequestTickets(prev => [newRequest, ...prev]);
     setNotice({
       type: 'success',
-      text: `Request submitted for ${employeeId.trim()} with ${lineItems.length} item${lineItems.length === 1 ? '' : 's'}.`,
+      text: `Request ${newRequest.id} logged for ${newRequest.requestedBy} with ${lineItems.length} item${lineItems.length === 1 ? '' : 's'}.`,
     });
     resetForm();
   };
@@ -147,7 +186,7 @@ export default function RequestItem() {
             </div>
 
             {lineItems.map((line, index) => (
-              <div key={`${line.itemId}-${index}`} className="grid grid-cols-1 md:grid-cols-[1fr_140px_auto] gap-3 items-end p-3 border border-slate-100 rounded-xl bg-slate-50/60">
+              <div key={`${line.itemId || 'blank'}-${index}`} className="grid grid-cols-1 md:grid-cols-[1fr_140px_auto] gap-3 items-end p-3 border border-slate-100 rounded-xl bg-slate-50/60">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Item</label>
                   <select
@@ -161,7 +200,7 @@ export default function RequestItem() {
                     ) : (
                       availableItems.map(item => (
                         <option key={item.id} value={item.id}>
-                          {item.id} — {item.name}
+                          {item.id} - {item.name}
                         </option>
                       ))
                     )}

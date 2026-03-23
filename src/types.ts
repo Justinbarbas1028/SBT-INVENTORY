@@ -7,6 +7,7 @@ export type AppView =
   | 'register-item'
   | 'logistics'
   | 'history'
+  | 'request-logs'
   | 'manage-roles'
   | 'request-item';
 
