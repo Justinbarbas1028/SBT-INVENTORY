@@ -7,7 +7,8 @@ export type AppView =
   | 'register-item'
   | 'logistics'
   | 'history'
-  | 'manage-roles';
+  | 'manage-roles'
+  | 'request-item';
 
 export type ItemCategory = 'Office Supplies' | 'Devices' | 'Furniture' | 'Tools' | 'Other';
 export type ItemStatus = 'In Stock' | 'Checked Out' | 'Disposed';
