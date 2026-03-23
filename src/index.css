@@ -25,6 +25,30 @@ html.dark {
   --app-text-muted: #94a3b8;
 }
 
+html.pain {
+  color-scheme: dark;
+  --app-bg: #f4ff00;
+  --app-surface: #00f6ff;
+  --app-surface-soft: #ff00f7;
+  --app-surface-muted: #39ff14;
+  --app-border: #ff5e00;
+  --app-border-strong: #1400ff;
+  --app-text: #ff006e;
+  --app-text-muted: #6a00ff;
+}
+
+@keyframes pain-shift {
+  0% {
+    filter: hue-rotate(0deg) saturate(1.1);
+  }
+  50% {
+    filter: hue-rotate(25deg) saturate(1.8);
+  }
+  100% {
+    filter: hue-rotate(-25deg) saturate(1.4);
+  }
+}
+
 html,
 body,
 #root {
@@ -260,4 +284,141 @@ html.dark .bg-teal-100 {
 
 html.dark .text-teal-700 {
   color: #5eead4;
+}
+
+
+html.pain body {
+  background:
+    repeating-linear-gradient(135deg, #f4ff00 0 20px, #ff00f7 20px 40px, #00f6ff 40px 60px),
+    radial-gradient(circle at top left, #39ff14, transparent 35%),
+    radial-gradient(circle at bottom right, #ff006e, transparent 45%);
+  color: #1400ff;
+  animation: pain-shift 3s steps(2, end) infinite;
+}
+
+html.pain ::selection {
+  background: #1400ff;
+  color: #f4ff00;
+}
+
+html.pain ::placeholder {
+  color: #6a00ff;
+}
+
+html.pain .bg-white,
+html.pain .bg-slate-50,
+html.pain .bg-slate-100,
+html.pain .bg-slate-200,
+html.pain .bg-slate-800,
+html.pain .bg-slate-900,
+html.pain [class*="bg-slate-50/50"],
+html.pain [class*="bg-white/95"] {
+  background-color: rgba(0, 246, 255, 0.82) !important;
+  backdrop-filter: none;
+}
+
+html.pain .text-slate-900,
+html.pain .text-slate-800,
+html.pain .text-slate-700,
+html.pain .text-slate-600,
+html.pain .text-slate-500,
+html.pain .text-slate-400,
+html.pain .text-slate-300,
+html.pain .text-white,
+html.pain .dark\:text-slate-100,
+html.pain .dark\:text-slate-300,
+html.pain .dark\:text-slate-400,
+html.pain .dark\:placeholder\:text-slate-500::placeholder {
+  color: #ff006e !important;
+}
+
+html.pain .border-slate-50,
+html.pain .border-slate-100,
+html.pain .border-slate-200,
+html.pain .border-slate-300,
+html.pain .dark\:border-slate-700 {
+  border-color: #ff5e00 !important;
+}
+
+html.pain .hover\:bg-slate-50:hover,
+html.pain .hover\:bg-slate-100:hover,
+html.pain .hover\:bg-slate-200:hover,
+html.pain .dark\:hover\:bg-slate-700:hover,
+html.pain .dark\:hover\:bg-slate-800:hover,
+html.pain [class*="hover:bg-slate-50/50"]:hover {
+  background-color: rgba(57, 255, 20, 0.88) !important;
+}
+
+html.pain .hover\:text-slate-600:hover,
+html.pain .hover\:text-slate-700:hover,
+html.pain .hover\:text-white:hover {
+  color: #1400ff !important;
+}
+
+html.pain .bg-emerald-50,
+html.pain .bg-emerald-100,
+html.pain .bg-amber-100,
+html.pain .bg-red-50,
+html.pain .bg-rose-50,
+html.pain .bg-rose-100,
+html.pain .bg-sky-100,
+html.pain .bg-indigo-100,
+html.pain .bg-violet-100,
+html.pain .bg-purple-100,
+html.pain .bg-teal-100,
+html.pain [class*="bg-emerald-50/50"],
+html.pain .dark\:bg-emerald-500\/15,
+html.pain .dark\:bg-amber-500\/15,
+html.pain .dark\:bg-cyan-500\/15 {
+  background-color: rgba(255, 0, 247, 0.78) !important;
+}
+
+html.pain .border-emerald-200,
+html.pain .border-red-200,
+html.pain .border-rose-200 {
+  border-color: #1400ff !important;
+}
+
+html.pain .bg-emerald-600,
+html.pain .bg-red-500,
+html.pain .bg-slate-900,
+html.pain .dark\:bg-slate-950 {
+  background-color: #1400ff !important;
+}
+
+html.pain .text-emerald-800,
+html.pain .text-emerald-700,
+html.pain .text-emerald-600,
+html.pain .text-amber-700,
+html.pain .text-red-700,
+html.pain .text-red-600,
+html.pain .text-rose-700,
+html.pain .text-sky-700,
+html.pain .text-indigo-700,
+html.pain .text-violet-700,
+html.pain .text-purple-700,
+html.pain .text-teal-700,
+html.pain .dark\:text-emerald-300,
+html.pain .dark\:text-amber-300,
+html.pain .dark\:text-cyan-300 {
+  color: #1400ff !important;
+}
+
+html.pain header,
+html.pain main,
+html.pain nav,
+html.pain aside,
+html.pain section,
+html.pain article,
+html.pain button,
+html.pain input,
+html.pain select,
+html.pain table,
+html.pain td,
+html.pain th,
+html.pain form,
+html.pain div.rounded-3xl,
+html.pain div.rounded-2xl,
+html.pain div.rounded-xl {
+  box-shadow: 0 0 0 2px rgba(255, 94, 0, 0.9), 0 0 22px rgba(255, 0, 247, 0.8) !important;
 }

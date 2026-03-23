@@ -1,9 +1,12 @@
 import React from 'react';
-import { Bell, Search, UserCircle, LogOut, Menu, Moon, Sun } from 'lucide-react';
+import { Bell, Search, UserCircle, LogOut, Menu, Moon, Sun, TriangleAlert } from 'lucide-react';
 import { useAppContext } from '../AppContext';
+import { getNextTheme, getThemeToggleLabel } from '../theme';
 
 export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { currentUser, users, setCurrentUser, theme, setTheme } = useAppContext();
+  const nextTheme = getNextTheme(theme);
+  const nextThemeLabel = getThemeToggleLabel(theme);
 
   return (
     <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-6 shrink-0 transition-colors">
@@ -24,15 +27,15 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
       <div className="flex items-center space-x-2 md:space-x-4 ml-4">
         <button
           type="button"
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onClick={() => setTheme(nextTheme)}
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 transition-colors hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          aria-pressed={theme === 'dark'}
-          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          aria-label={`Switch to ${nextThemeLabel} mode`}
+          aria-pressed={theme === 'dark' || theme === 'pain'}
+          title={`Switch to ${nextThemeLabel} mode`}
         >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          {theme === 'light' ? <Moon size={18} /> : theme === 'dark' ? <TriangleAlert size={18} /> : <Sun size={18} />}
           <span className="hidden lg:inline text-sm font-medium">
-            {theme === 'dark' ? 'Light' : 'Dark'}
+            {nextThemeLabel}
           </span>
         </button>
 

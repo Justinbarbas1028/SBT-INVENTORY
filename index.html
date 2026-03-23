@@ -9,11 +9,11 @@
       (() => {
         try {
           const storedTheme = localStorage.getItem('sbt-inventory-theme');
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : (prefersDark ? 'dark' : 'light');
+          const theme = storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'pain' ? storedTheme : 'pain';
           document.documentElement.classList.toggle('dark', theme === 'dark');
+          document.documentElement.classList.toggle('pain', theme === 'pain');
           document.documentElement.dataset.theme = theme;
-          document.documentElement.style.colorScheme = theme;
+          document.documentElement.style.colorScheme = theme === 'pain' ? 'dark' : theme;
         } catch (error) {
           // Ignore storage or preference access failures.
         }
