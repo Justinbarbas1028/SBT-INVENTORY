@@ -1,12 +1,12 @@
 import React from 'react';
-import { Bell, Search, UserCircle, LogOut, Menu } from 'lucide-react';
+import { Bell, Search, UserCircle, LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useAppContext } from '../AppContext';
 
 export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
-  const { currentUser, users, setCurrentUser } = useAppContext();
+  const { currentUser, users, setCurrentUser, theme, setTheme } = useAppContext();
 
   return (
-    <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-6 shrink-0">
+    <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-4 md:px-6 shrink-0 transition-colors">
       <div className="flex items-center flex-1">
         <button onClick={onMenuClick} className="mr-3 md:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg">
           <Menu size={24} />
@@ -15,13 +15,27 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
           <Search size={18} className="text-slate-400 shrink-0" />
           <input 
             type="text" 
-            placeholder="Search..." 
-            className="bg-transparent border-none outline-none ml-2 w-full text-sm"
+            placeholder="Search..."
+            className="bg-transparent border-none outline-none ml-2 w-full text-sm text-slate-700 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
         </div>
       </div>
       
       <div className="flex items-center space-x-2 md:space-x-4 ml-4">
+        <button
+          type="button"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-slate-700 transition-colors hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          aria-pressed={theme === 'dark'}
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          <span className="hidden lg:inline text-sm font-medium">
+            {theme === 'dark' ? 'Light' : 'Dark'}
+          </span>
+        </button>
+
         <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors">
           <Bell size={20} />
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>

@@ -23,7 +23,7 @@ export default function Sidebar({ currentView, setCurrentView, role }: SidebarPr
   const filteredNav = navItems.filter(item => item.roles.includes(role));
 
   return (
-    <div className="w-64 bg-slate-900 text-white h-full flex flex-col shadow-xl md:shadow-none">
+    <div className="w-64 bg-slate-900 text-white h-full flex flex-col shadow-xl md:shadow-none dark:bg-slate-950">
       <div className="p-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight text-emerald-400">Simple Inventory</h1>
       </div>

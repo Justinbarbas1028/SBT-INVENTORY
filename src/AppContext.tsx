@@ -1,10 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Item, User, Transaction, Role, LogisticsRequest } from './types';
 import { initialItems, initialUsers, initialTransactions, initialLogisticsRequests } from './store';
+import { ThemeMode, applyTheme, getPreferredTheme, persistTheme } from './theme';
 
 interface AppContextType {
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
   items: Item[];
   setItems: React.Dispatch<React.SetStateAction<Item[]>>;
   users: User[];
@@ -20,13 +23,20 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [currentUser, setCurrentUser] = useState<User | null>(users[0]); // Default to Super Admin
+  const [theme, setTheme] = useState<ThemeMode>(() => getPreferredTheme());
   const [items, setItems] = useState<Item[]>(initialItems);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   const [logisticsRequests, setLogisticsRequests] = useState<LogisticsRequest[]>(initialLogisticsRequests);
 
+  useEffect(() => {
+    applyTheme(theme);
+    persistTheme(theme);
+  }, [theme]);
+
   return (
     <AppContext.Provider value={{
       currentUser, setCurrentUser,
+      theme, setTheme,
       items, setItems,
       users, setUsers,
       transactions, setTransactions,

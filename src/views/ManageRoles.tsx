@@ -56,7 +56,7 @@ export default function ManageRoles() {
                 type="text" 
                 value={newUser.name}
                 onChange={e => setNewUser({...newUser, name: e.target.value})}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div>
@@ -66,7 +66,7 @@ export default function ManageRoles() {
                 type="email" 
                 value={newUser.email}
                 onChange={e => setNewUser({...newUser, email: e.target.value})}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div>
@@ -76,7 +76,7 @@ export default function ManageRoles() {
                 type="text" 
                 value={newUser.employeeNumber}
                 onChange={e => setNewUser({...newUser, employeeNumber: e.target.value})}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
             <div>
@@ -84,7 +84,7 @@ export default function ManageRoles() {
               <select 
                 value={newUser.role}
                 onChange={e => setNewUser({...newUser, role: e.target.value as Role})}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="Employee">Employee</option>
                 <option value="Admin">Admin</option>

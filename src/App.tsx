@@ -20,7 +20,13 @@ function AppContent() {
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'check-in' | 'check-out' | 'logistics' | 'history' | 'manage-roles'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  if (!currentUser) return <div>Loading...</div>;
+  if (!currentUser) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[var(--app-bg)] text-slate-600 transition-colors dark:text-slate-300">
+        Loading...
+      </div>
+    );
+  }
 
   const renderView = () => {
     switch (currentView) {
@@ -36,7 +42,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+    <div className="flex h-screen bg-[var(--app-bg)] text-slate-900 font-sans overflow-hidden transition-colors duration-200 dark:text-slate-100">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
