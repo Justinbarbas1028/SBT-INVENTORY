@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useAppContext } from '../AppContext';
-import { AlertCircle, CheckCircle, ClipboardCheck, Plus, Send, ShieldCheck, ShieldX, Trash2 } from 'lucide-react';
-import { BorrowRequestStatus } from '../types';
+import { AlertCircle, CheckCircle, Plus, Send, Trash2 } from 'lucide-react';
 
 interface BorrowLineItem {
   itemId: string;
@@ -13,14 +12,8 @@ const createLineItem = (itemId = ''): BorrowLineItem => ({
   quantity: 1,
 });
 
-const statusBadgeStyles: Record<BorrowRequestStatus, string> = {
-  Pending: 'bg-amber-100 text-amber-700',
-  Approved: 'bg-emerald-100 text-emerald-700',
-  Denied: 'bg-rose-100 text-rose-700',
-};
-
 export default function RequestItem() {
-  const { items, currentUser, borrowRequestTickets, setBorrowRequestTickets } = useAppContext();
+  const { items } = useAppContext();
   const [employeeId, setEmployeeId] = useState('');
   const [email, setEmail] = useState('');
   const [lineItems, setLineItems] = useState<BorrowLineItem[]>([createLineItem(items[0]?.id ?? '')]);
@@ -30,14 +23,6 @@ export default function RequestItem() {
     () => items.filter(item => item.status !== 'Disposed'),
     [items]
   );
-
-  const ticketsForView = useMemo(() => {
-    if (currentUser?.role === 'Super Admin') {
-      return [...borrowRequestTickets].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-
-    return borrowRequestTickets.filter(ticket => ticket.requestedBy === currentUser?.name);
-  }, [borrowRequestTickets, currentUser?.name, currentUser?.role]);
 
   const updateLine = (index: number, updates: Partial<BorrowLineItem>) => {
     setLineItems(prev =>
@@ -61,28 +46,6 @@ export default function RequestItem() {
     setLineItems([createLineItem(availableItems[0]?.id ?? '')]);
   };
 
-  const reviewTicket = (ticketId: string, status: Exclude<BorrowRequestStatus, 'Pending'>) => {
-    if (currentUser?.role !== 'Super Admin') return;
-
-    setBorrowRequestTickets(prev =>
-      prev.map(ticket =>
-        ticket.id === ticketId && ticket.status === 'Pending'
-          ? {
-              ...ticket,
-              status,
-              reviewedAt: new Date().toISOString(),
-              reviewedBy: currentUser.name,
-            }
-          : ticket
-      )
-    );
-
-    setNotice({
-      type: 'success',
-      text: `Ticket ${ticketId} marked as ${status}.`,
-    });
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -95,8 +58,6 @@ export default function RequestItem() {
       setNotice({ type: 'error', text: 'No available inventory items to request right now.' });
       return;
     }
-
-    const normalizedEmail = email.trim().toLowerCase();
 
     for (const [index, line] of lineItems.entries()) {
       const selectedItem = items.find(item => item.id === line.itemId);
@@ -117,31 +78,6 @@ export default function RequestItem() {
       }
     }
 
-    const requestItems = lineItems.map(line => {
-      const selectedItem = items.find(item => item.id === line.itemId)!;
-
-      return {
-        itemId: selectedItem.id,
-        itemName: selectedItem.name,
-        quantity: line.quantity,
-      };
-    });
-
-    const nextNumber = String(borrowRequestTickets.length + 1).padStart(3, '0');
-
-    setBorrowRequestTickets(prev => [
-      {
-        id: `BRQ-${nextNumber}`,
-        employeeId: employeeId.trim(),
-        employeeEmail: normalizedEmail,
-        requestedBy: currentUser?.name ?? 'Unknown',
-        items: requestItems,
-        status: 'Pending',
-        createdAt: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
-
     setNotice({
       type: 'success',
       text: `Request submitted for ${employeeId.trim()} with ${lineItems.length} item${lineItems.length === 1 ? '' : 's'}.`,
@@ -150,15 +86,15 @@ export default function RequestItem() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
-      <div>
+    <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      <div className="mb-8">
         <h2 className="text-2xl font-bold text-slate-800">Request Item Form</h2>
         <p className="text-slate-600">Submit a borrowing request with employee details and requested inventory items.</p>
       </div>
 
       {notice && (
         <div
-          className={`p-4 border rounded-xl flex items-center space-x-2 ${
+          className={`mb-6 p-4 border rounded-xl flex items-center space-x-2 ${
             notice.type === 'success'
               ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
               : 'bg-red-50 border-red-200 text-red-700'
@@ -268,77 +204,6 @@ export default function RequestItem() {
           </div>
         </form>
       </div>
-
-      <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800">Request Ticket Logs</h3>
-            <p className="text-sm text-slate-600">
-              {currentUser?.role === 'Super Admin'
-                ? 'Review pending borrowing requests and approve or deny tickets.'
-                : 'Track the status of your borrowing request tickets.'}
-            </p>
-          </div>
-          <ClipboardCheck className="text-slate-400" size={20} />
-        </div>
-
-        {ticketsForView.length === 0 ? (
-          <p className="text-sm text-slate-500">No request tickets available.</p>
-        ) : (
-          <div className="space-y-3">
-            {ticketsForView.map(ticket => (
-              <article key={ticket.id} className="rounded-xl border border-slate-200 p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-slate-800">{ticket.id}</p>
-                    <p className="text-sm text-slate-600">
-                      {ticket.employeeId} • {ticket.employeeEmail}
-                    </p>
-                  </div>
-                  <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusBadgeStyles[ticket.status]}`}>
-                    {ticket.status}
-                  </span>
-                </div>
-
-                <div className="text-sm text-slate-600 space-y-1">
-                  <p>Requested by: {ticket.requestedBy}</p>
-                  <p>Created: {new Date(ticket.createdAt).toLocaleString()}</p>
-                  {ticket.reviewedBy && ticket.reviewedAt && (
-                    <p>Reviewed by {ticket.reviewedBy} on {new Date(ticket.reviewedAt).toLocaleString()}</p>
-                  )}
-                </div>
-
-                <ul className="text-sm text-slate-700 list-disc pl-5 space-y-1">
-                  {ticket.items.map((item, index) => (
-                    <li key={`${ticket.id}-${item.itemId}-${index}`}>{item.itemId} — {item.itemName} (Qty: {item.quantity})</li>
-                  ))}
-                </ul>
-
-                {currentUser?.role === 'Super Admin' && ticket.status === 'Pending' && (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => reviewTicket(ticket.id, 'Approved')}
-                      className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
-                    >
-                      <ShieldCheck size={16} />
-                      Approve
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => reviewTicket(ticket.id, 'Denied')}
-                      className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-rose-600 text-white hover:bg-rose-700"
-                    >
-                      <ShieldX size={16} />
-                      Deny
-                    </button>
-                  </div>
-                )}
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
     </div>
   );
 }
