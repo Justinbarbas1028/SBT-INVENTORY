@@ -3,6 +3,7 @@ import { useAppContext } from '../AppContext';
 import {
   LogisticsPriority,
   LogisticsRequest,
+  LogisticsRequestItem,
   LogisticsStatus,
   LogisticsType,
 } from '../types';
@@ -15,6 +16,7 @@ import {
   Package,
   Plus,
   Search,
+  Trash2,
   Truck,
   XCircle,
 } from 'lucide-react';
@@ -78,24 +80,46 @@ const getNextStatus = (status: LogisticsStatus): LogisticsStatus | null => {
   }
 };
 
+type BatchLineItemDraft = {
+  itemId: string;
+  quantity: number;
+};
+
+interface LogisticsFormState {
+  type: LogisticsType;
+  lineItems: BatchLineItemDraft[];
+  origin: string;
+  destination: string;
+  priority: LogisticsPriority;
+  scheduledDate: string;
+  handler: string;
+  notes: string;
+}
+
+const createDraftLineItem = (itemId = ''): BatchLineItemDraft => ({
+  itemId,
+  quantity: 1,
+});
+
+const buildInitialForm = (defaultItemId: string, handlerName?: string | null): LogisticsFormState => ({
+  type: 'Outbound',
+  lineItems: [createDraftLineItem(defaultItemId)],
+  origin: typeDefaults.Outbound.origin,
+  destination: typeDefaults.Outbound.destination,
+  priority: 'Medium',
+  scheduledDate: getLocalDateInput(),
+  handler: handlerName ?? 'Logistics Desk',
+  notes: '',
+});
+
 export default function Logistics() {
   const { currentUser, items, logisticsRequests, setLogisticsRequests } = useAppContext();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | LogisticsStatus>('All');
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [form, setForm] = useState({
-    type: 'Outbound' as LogisticsType,
-    itemId: items[0]?.id ?? '',
-    quantity: 1,
-    origin: typeDefaults.Outbound.origin,
-    destination: typeDefaults.Outbound.destination,
-    priority: 'Medium' as LogisticsPriority,
-    scheduledDate: getLocalDateInput(),
-    handler: currentUser?.name ?? 'Logistics Desk',
-    notes: '',
-  });
-
-  const selectedItem = items.find(item => item.id === form.itemId);
+  const [form, setForm] = useState<LogisticsFormState>(() =>
+    buildInitialForm(items[0]?.id ?? '', currentUser?.name)
+  );
 
   const pendingCount = logisticsRequests.filter(r => r.status === 'Requested').length;
   const approvedCount = logisticsRequests.filter(r => r.status === 'Approved' || r.status === 'Packed').length;
@@ -103,16 +127,21 @@ export default function Logistics() {
   const completedCount = logisticsRequests.filter(r => r.status === 'Delivered' || r.status === 'Returned').length;
   const cancelledCount = logisticsRequests.filter(r => r.status === 'Cancelled').length;
 
+  const searchValue = search.trim().toLowerCase();
+
   const filteredRequests = [...logisticsRequests]
     .filter(request => {
       const matchesSearch =
-        request.id.toLowerCase().includes(search.toLowerCase()) ||
-        request.itemId.toLowerCase().includes(search.toLowerCase()) ||
-        request.itemName.toLowerCase().includes(search.toLowerCase()) ||
-        request.origin.toLowerCase().includes(search.toLowerCase()) ||
-        request.destination.toLowerCase().includes(search.toLowerCase()) ||
-        request.handler.toLowerCase().includes(search.toLowerCase()) ||
-        request.requestedBy.toLowerCase().includes(search.toLowerCase());
+        request.id.toLowerCase().includes(searchValue) ||
+        request.origin.toLowerCase().includes(searchValue) ||
+        request.destination.toLowerCase().includes(searchValue) ||
+        request.handler.toLowerCase().includes(searchValue) ||
+        request.requestedBy.toLowerCase().includes(searchValue) ||
+        request.items.some(line =>
+          line.itemId.toLowerCase().includes(searchValue) ||
+          line.itemName.toLowerCase().includes(searchValue) ||
+          String(line.quantity).includes(searchValue)
+        );
       const matchesStatus = statusFilter === 'All' || request.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
@@ -128,17 +157,75 @@ export default function Logistics() {
     }));
   };
 
+  const updateLineItem = (index: number, updates: Partial<BatchLineItemDraft>) => {
+    setForm(prev => ({
+      ...prev,
+      lineItems: prev.lineItems.map((line, lineIndex) =>
+        lineIndex === index ? { ...line, ...updates } : line
+      ),
+    }));
+  };
+
+  const addLineItem = () => {
+    setForm(prev => {
+      const usedIds = prev.lineItems.map(line => line.itemId).filter(Boolean);
+      const nextItemId = items.find(item => !usedIds.includes(item.id))?.id ?? items[0]?.id ?? '';
+
+      return {
+        ...prev,
+        lineItems: [...prev.lineItems, createDraftLineItem(nextItemId)],
+      };
+    });
+  };
+
+  const removeLineItem = (index: number) => {
+    setForm(prev => {
+      if (prev.lineItems.length === 1) return prev;
+
+      return {
+        ...prev,
+        lineItems: prev.lineItems.filter((_, lineIndex) => lineIndex !== index),
+      };
+    });
+  };
+
+  const resetForm = () => {
+    setForm(buildInitialForm(items[0]?.id ?? '', currentUser?.name));
+  };
+
   const createRequest = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedItem) {
-      setNotice({ type: 'error', text: 'Select an inventory item before creating a logistics request.' });
+    if (items.length === 0) {
+      setNotice({ type: 'error', text: 'Add inventory items before creating a logistics request.' });
       return;
     }
 
-    if (selectedItem.status === 'Disposed') {
-      setNotice({ type: 'error', text: 'Disposed items cannot be used in logistics requests.' });
-      return;
+    const batchItems: LogisticsRequestItem[] = [];
+
+    for (const [index, line] of form.lineItems.entries()) {
+      const selectedItem = items.find(item => item.id === line.itemId);
+
+      if (!selectedItem) {
+        setNotice({ type: 'error', text: `Select a valid inventory item for row ${index + 1}.` });
+        return;
+      }
+
+      if (selectedItem.status === 'Disposed') {
+        setNotice({ type: 'error', text: `Disposed items cannot be used in logistics requests. Row ${index + 1} is ${selectedItem.id}.` });
+        return;
+      }
+
+      if (!Number.isFinite(line.quantity) || line.quantity < 1) {
+        setNotice({ type: 'error', text: `Quantity must be at least 1 for row ${index + 1}.` });
+        return;
+      }
+
+      batchItems.push({
+        itemId: selectedItem.id,
+        itemName: selectedItem.name,
+        quantity: line.quantity,
+      });
     }
 
     const nextNumber = String(logisticsRequests.length + 1).padStart(3, '0');
@@ -147,9 +234,7 @@ export default function Logistics() {
     const newRequest: LogisticsRequest = {
       id: `LGX-${nextNumber}`,
       type: form.type,
-      itemId: form.itemId,
-      itemName: selectedItem.name,
-      quantity: form.quantity,
+      items: batchItems,
       origin: form.origin,
       destination: form.destination,
       requestedBy: currentUser?.name ?? 'Unknown',
@@ -163,18 +248,11 @@ export default function Logistics() {
     };
 
     setLogisticsRequests(prev => [newRequest, ...prev]);
-    setNotice({ type: 'success', text: `Logistics request ${newRequest.id} created.` });
-    setForm({
-      type: 'Outbound',
-      itemId: items[0]?.id ?? '',
-      quantity: 1,
-      origin: typeDefaults.Outbound.origin,
-      destination: typeDefaults.Outbound.destination,
-      priority: 'Medium',
-      scheduledDate: getLocalDateInput(),
-      handler: currentUser?.name ?? 'Logistics Desk',
-      notes: '',
+    setNotice({
+      type: 'success',
+      text: `Batch request ${newRequest.id} created with ${batchItems.length} item${batchItems.length === 1 ? '' : 's'}.`,
     });
+    resetForm();
   };
 
   const advanceRequest = (request: LogisticsRequest) => {
@@ -298,7 +376,7 @@ export default function Logistics() {
           <div className="flex items-start justify-between gap-3 mb-5">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">Create Logistics Request</h3>
-              <p className="text-sm text-slate-500">Request movement for outbound, inbound, transfer, or return items.</p>
+              <p className="text-sm text-slate-500">Create a single request with one or more items on the same route.</p>
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
               <Plus size={14} />
@@ -333,42 +411,6 @@ export default function Logistics() {
                   <option value="Transfer">Transfer</option>
                   <option value="Return">Return</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Item</label>
-                <select
-                  value={form.itemId}
-                  onChange={e => setForm(prev => ({ ...prev, itemId: e.target.value }))}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
-                  disabled={items.length === 0}
-                >
-                  {items.length === 0 ? (
-                    <option value="">No inventory items available</option>
-                  ) : (
-                    items.map(item => (
-                      <option key={item.id} value={item.id}>
-                        {item.id} - {item.name}
-                      </option>
-                    ))
-                  )}
-                </select>
-                {selectedItem && (
-                  <p className="mt-2 text-xs text-slate-500">
-                    Selected item status: <span className="font-medium text-slate-700">{selectedItem.status}</span>
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Quantity</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={form.quantity}
-                  onChange={e => setForm(prev => ({ ...prev, quantity: Number(e.target.value) || 1 }))}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
-                />
               </div>
 
               <div>
@@ -425,6 +467,95 @@ export default function Logistics() {
               </div>
             </div>
 
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Batch Items</label>
+                  <p className="text-xs text-slate-500">Add one or more items to include in this request.</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addLineItem}
+                  disabled={items.length === 0}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <Plus size={14} />
+                  Add Item
+                </button>
+              </div>
+
+              {items.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">
+                  No inventory items are available yet.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {form.lineItems.map((lineItem, index) => {
+                    const selectedItem = items.find(item => item.id === lineItem.itemId);
+
+                    return (
+                      <div key={`${lineItem.itemId || 'blank'}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-xs uppercase tracking-[0.25em] text-slate-400">Item {index + 1}</span>
+                            <p className="text-sm font-medium text-slate-700">
+                              {selectedItem ? selectedItem.name : 'Select an inventory item'}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => removeLineItem(index)}
+                            disabled={form.lineItems.length === 1}
+                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-sm font-medium text-rose-700 hover:bg-rose-100 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Trash2 size={15} />
+                            Remove
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-[1fr_9rem] gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-2">Inventory Item</label>
+                            <select
+                              value={lineItem.itemId}
+                              onChange={e => updateLineItem(index, { itemId: e.target.value })}
+                              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
+                            >
+                              <option value="">Select an inventory item</option>
+                              {items.map(item => (
+                                <option key={item.id} value={item.id}>
+                                  {item.id} - {item.name}
+                                </option>
+                              ))}
+                            </select>
+
+                            {selectedItem && (
+                              <p className="mt-2 text-xs text-slate-500">
+                                Status: <span className="font-medium text-slate-700">{selectedItem.status}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-2">Quantity</label>
+                            <input
+                              type="number"
+                              min={1}
+                              value={lineItem.quantity}
+                              onChange={e => updateLineItem(index, { quantity: Math.max(1, Number(e.target.value) || 1) })}
+                              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">Notes</label>
               <textarea
@@ -436,13 +567,17 @@ export default function Logistics() {
             </div>
 
             <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Requested by <span className="font-medium text-slate-800">{currentUser?.name}</span>. This request starts at
+              Requested by <span className="font-medium text-slate-800">{currentUser?.name ?? 'Unknown'}</span>. This request starts at
               <span className={`ml-2 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles.Requested}`}>Requested</span>
+              <span className="ml-2 text-xs text-slate-500">
+                with {form.lineItems.length} item{form.lineItems.length === 1 ? '' : 's'} in the batch.
+              </span>
             </div>
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium shadow-sm"
+              disabled={items.length === 0}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium shadow-sm disabled:cursor-not-allowed disabled:bg-emerald-400"
             >
               <Truck size={18} />
               <span>Create Logistics Request</span>
@@ -487,7 +622,7 @@ export default function Logistics() {
               <thead>
                 <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
                   <th className="p-4 font-medium">Request</th>
-                  <th className="p-4 font-medium">Item</th>
+                  <th className="p-4 font-medium">Items</th>
                   <th className="p-4 font-medium">Route</th>
                   <th className="p-4 font-medium">Schedule</th>
                   <th className="p-4 font-medium">Priority</th>
@@ -502,17 +637,28 @@ export default function Logistics() {
 
                   return (
                     <tr key={request.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 whitespace-nowrap">
-                        <div className="flex flex-col">
+                      <td className="p-4 whitespace-nowrap align-top">
+                        <div className="flex flex-col gap-1">
                           <span className="font-mono text-sm text-slate-600">{request.id}</span>
                           <span className="text-sm font-medium text-slate-800">{request.type}</span>
                           <span className="text-xs text-slate-500">Requested by {request.requestedBy}</span>
+                          {request.items.length > 1 && (
+                            <span className="inline-flex w-fit rounded-full bg-cyan-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.25em] text-cyan-700">
+                              Batch
+                            </span>
+                          )}
                         </div>
                       </td>
-                      <td className="p-4 whitespace-nowrap">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-slate-800">{request.itemName}</span>
-                          <span className="text-sm text-slate-500 font-mono">{request.itemId} - Qty {request.quantity}</span>
+                      <td className="p-4 align-top">
+                        <div className="flex flex-wrap gap-2">
+                          {request.items.map((line, index) => (
+                            <div key={`${request.id}-${line.itemId}-${index}`} className="rounded-xl bg-slate-50 px-3 py-2">
+                              <p className="font-medium text-slate-800">{line.itemName}</p>
+                              <p className="text-xs text-slate-500 font-mono">
+                                {line.itemId} x {line.quantity}
+                              </p>
+                            </div>
+                          ))}
                         </div>
                       </td>
                       <td className="p-4 whitespace-nowrap">

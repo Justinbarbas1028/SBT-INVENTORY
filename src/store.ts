@@ -21,9 +21,9 @@ export const initialLogisticsRequests: LogisticsRequest[] = [
   {
     id: 'LGX-001',
     type: 'Outbound',
-    itemId: 'ITM-001',
-    itemName: 'Laptop ThinkPad',
-    quantity: 1,
+    items: [
+      { itemId: 'ITM-001', itemName: 'Laptop ThinkPad', quantity: 1 },
+    ],
     origin: 'Main Warehouse',
     destination: 'Branch A',
     requestedBy: 'Alice Admin',
@@ -38,9 +38,9 @@ export const initialLogisticsRequests: LogisticsRequest[] = [
   {
     id: 'LGX-002',
     type: 'Inbound',
-    itemId: 'ITM-002',
-    itemName: 'Office Chair',
-    quantity: 2,
+    items: [
+      { itemId: 'ITM-002', itemName: 'Office Chair', quantity: 2 },
+    ],
     origin: 'Supplier Hub',
     destination: 'Main Warehouse',
     requestedBy: 'Bob Staff',
@@ -55,9 +55,9 @@ export const initialLogisticsRequests: LogisticsRequest[] = [
   {
     id: 'LGX-003',
     type: 'Transfer',
-    itemId: 'ITM-003',
-    itemName: 'Hammer Drill',
-    quantity: 1,
+    items: [
+      { itemId: 'ITM-003', itemName: 'Hammer Drill', quantity: 1 },
+    ],
     origin: 'Field Site',
     destination: 'Main Warehouse',
     requestedBy: 'Alice Admin',
@@ -72,9 +72,9 @@ export const initialLogisticsRequests: LogisticsRequest[] = [
   {
     id: 'LGX-004',
     type: 'Return',
-    itemId: 'ITM-002',
-    itemName: 'Office Chair',
-    quantity: 1,
+    items: [
+      { itemId: 'ITM-002', itemName: 'Office Chair', quantity: 1 },
+    ],
     origin: 'Branch A',
     destination: 'Main Warehouse',
     requestedBy: 'Bob Staff',

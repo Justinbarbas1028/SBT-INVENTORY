@@ -39,12 +39,16 @@ export type LogisticsType = 'Inbound' | 'Outbound' | 'Transfer' | 'Return';
 export type LogisticsPriority = 'Low' | 'Medium' | 'High';
 export type LogisticsStatus = 'Requested' | 'Approved' | 'Packed' | 'In Transit' | 'Delivered' | 'Returned' | 'Cancelled';
 
-export interface LogisticsRequest {
-  id: string;
-  type: LogisticsType;
+export interface LogisticsRequestItem {
   itemId: string;
   itemName: string;
   quantity: number;
+}
+
+export interface LogisticsRequest {
+  id: string;
+  type: LogisticsType;
+  items: LogisticsRequestItem[];
   origin: string;
   destination: string;
   requestedBy: string;
