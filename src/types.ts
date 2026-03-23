@@ -70,3 +70,24 @@ export interface LogisticsRequest {
   updatedAt: string;
   notes?: string;
 }
+
+export type BorrowRequestStatus = 'Pending' | 'Approved' | 'Denied';
+
+export interface BorrowRequestItem {
+  itemId: string;
+  itemName: string;
+  quantity: number;
+}
+
+export interface BorrowRequestTicket {
+  id: string;
+  employeeId: string;
+  employeeEmail: string;
+  requestedBy: string;
+  items: BorrowRequestItem[];
+  status: BorrowRequestStatus;
+  createdAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewNote?: string;
+}

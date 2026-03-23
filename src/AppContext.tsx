@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Item, User, Transaction, Role, LogisticsRequest } from './types';
-import { initialItems, initialUsers, initialTransactions, initialLogisticsRequests } from './store';
+import { Item, User, Transaction, Role, LogisticsRequest, BorrowRequestTicket } from './types';
+import { initialItems, initialUsers, initialTransactions, initialLogisticsRequests, initialBorrowRequestTickets } from './store';
 import { ThemeMode, applyTheme, getPreferredTheme, persistTheme } from './theme';
 
 interface AppContextType {
@@ -16,6 +16,8 @@ interface AppContextType {
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
   logisticsRequests: LogisticsRequest[];
   setLogisticsRequests: React.Dispatch<React.SetStateAction<LogisticsRequest[]>>;
+  borrowRequestTickets: BorrowRequestTicket[];
+  setBorrowRequestTickets: React.Dispatch<React.SetStateAction<BorrowRequestTicket[]>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -27,6 +29,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [items, setItems] = useState<Item[]>(initialItems);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   const [logisticsRequests, setLogisticsRequests] = useState<LogisticsRequest[]>(initialLogisticsRequests);
+  const [borrowRequestTickets, setBorrowRequestTickets] = useState<BorrowRequestTicket[]>(initialBorrowRequestTickets);
 
   useEffect(() => {
     applyTheme(theme);
@@ -41,6 +44,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       users, setUsers,
       transactions, setTransactions,
       logisticsRequests, setLogisticsRequests,
+      borrowRequestTickets, setBorrowRequestTickets,
     }}>
       {children}
     </AppContext.Provider>
