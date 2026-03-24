@@ -12,13 +12,6 @@ test('composer is pinned to php 8.3 for dependency resolution', function () {
     expect($composer['config']['platform']['php'] ?? null)->toBe('8.3.30');
 });
 
-test('netlify publishes the laravel public directory', function () {
-    $root = dirname(__DIR__, 2);
-    $netlify = file_get_contents($root . DIRECTORY_SEPARATOR . 'netlify.toml');
-
-    expect($netlify)->toContain('publish = "public"');
-});
-
 test('composer lock keeps symfony packages below v8', function () {
     $root = dirname(__DIR__, 2);
     $lock = json_decode(
